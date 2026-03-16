@@ -32,13 +32,25 @@ if not os.path.exists(FILE_COLOR):
 with open(FILE_COLOR, "r") as f: main_color = f.read().strip()
 
 def load_data():
-    try:
-        df_k = conn.read(worksheet="KhoThuoc", ttl=0).dropna(how='all')
-        df_ls = conn.read(worksheet="LichSu", ttl=0).dropna(how='all')
-        df_ns = conn.read(worksheet="NhanSu", ttl=0).dropna(how='all')
-        df_ct = conn.read(worksheet="ChuongTrinh", ttl=0).dropna(how='all')
-        df_dt = conn.read(worksheet="DuTru", ttl=0).dropna(how='all')
-        df_nhom = conn.read(worksheet="NhomThuoc", ttl=0).dropna(how='all')
+    # --- ĐOẠN CODE KHỞI TẠO AN TOÀN ---
+# Kiểm tra nếu chưa có dữ liệu trong bộ nhớ thì mới nạp
+if 'df_kho' not in st.session_state:
+    with st.spinner('Đang kết nối dữ liệu Đoàn Khoa...'):
+        data = load_data()
+        # Gán đầy đủ các bảng dữ liệu (phải đủ 10 biến theo code cũ)
+        st.session_state.df_kho = data[0]
+        st.session_state.df_ls = data[1]
+        st.session_state.df_ns = data[2]
+        st.session_state.df_ct = data[3]
+        st.session_state.df_dt = data[4]
+        st.session_state.df_nhom = data[5]
+        st.session_state.df_audit = data[6]
+        st.session_state.df_cd = data[7]  # Biến gây lỗi nằm ở đây
+        st.session_state.df_vt = data[8]
+        st.session_state.df_hd_nam = data[9]
+        
+        if 'logged_in' not in st.session_state:
+            st.session_state.logged_in = False
         
         try: df_audit = conn.read(worksheet="NhatKy", ttl=0).dropna(how='all')
         except: df_audit = pd.DataFrame(columns=['Thời Gian', 'Người Dùng', 'Hành Động', 'Chi Tiết'])
